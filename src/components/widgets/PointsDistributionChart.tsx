@@ -1,33 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { PlayerStats } from '@/types/player';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { BarChart3 } from 'lucide-react';
+import { usePlayers } from '@/lib/hooks/usePlayers';
 
 export default function PointsDistributionChart() {
-  const [players, setPlayers] = useState<PlayerStats[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { players, isLoading, isUnauthorized } = usePlayers();
 
-  useEffect(() => {
-    async function fetchPlayers() {
-      try {
-        const response = await fetch('/api/players');
-        if (response.ok) {
-          const data = await response.json();
-          setPlayers(data.players);
-        }
-      } catch (error) {
-        console.error('Error fetching players:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
+  if (isUnauthorized) {
+    return (
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <BarChart3 className="text-orange-500" size={20} />
+          <h3 className="text-lg font-semibold text-gray-900">Points Distribution</h3>
+        </div>
+        <p className="text-gray-600 text-sm">Please sign in to view this chart.</p>
+      </div>
+    );
+  }
 
-    fetchPlayers();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center gap-2 mb-4">
@@ -49,7 +41,8 @@ export default function PointsDistributionChart() {
     }))
     .sort((a, b) => b.points - a.points);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  type TooltipProps = { active?: boolean; payload?: Array<{ payload: typeof chartData[number] }>; label?: string };
+  const CustomTooltip = ({ active, payload }: TooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
@@ -82,7 +75,7 @@ export default function PointsDistributionChart() {
         <h3 className="text-lg font-semibold text-gray-900">Points Distribution</h3>
       </div>
       
-      <div className="h-64">
+      <div className="h-64" role="img" aria-label="Bar chart showing points per game distribution across players">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -102,10 +95,9 @@ export default function PointsDistributionChart() {
             <Bar 
               dataKey="points" 
               radius={[2, 2, 0, 0]}
-              fill={(entry: any) => getBarColor(entry.points)}
             >
               {chartData.map((entry, index) => (
-                <Bar key={`cell-${index}`} fill={getBarColor(entry.points)} />
+                <Cell key={`cell-${index}`} fill={getBarColor(entry.points)} />
               ))}
             </Bar>
           </BarChart>

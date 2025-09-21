@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser } from '@auth0/nextjs-auth0/client';
+import { useUser } from '@auth0/nextjs-auth0';
 import { LogOut, User } from 'lucide-react';
 
 export default function LogoutButton() {
@@ -16,7 +16,8 @@ export default function LogoutButton() {
         <span className="font-medium">{user.name || user.email}</span>
       </div>
       <a
-        href="/api/auth/logout"
+        href="/auth/logout"
+        aria-label="Sign out of FastBreak"
         className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 font-medium"
       >
         <LogOut size={16} />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser } from '@auth0/nextjs-auth0/client';
+import { useUser } from '@auth0/nextjs-auth0';
 import { LogIn } from 'lucide-react';
 
 export default function LoginButton() {
@@ -11,7 +11,8 @@ export default function LoginButton() {
 
   return (
     <a
-      href="/api/auth/login"
+      href="/auth/login"
+      aria-label="Sign in to FastBreak"
       className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium"
     >
       <LogIn size={20} />

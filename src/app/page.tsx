@@ -3,8 +3,16 @@ import PlayerLeaderboard from '@/components/widgets/PlayerLeaderboard';
 import ShootingEfficiencyChart from '@/components/widgets/ShootingEfficiencyChart';
 import PerformanceRadarChart from '@/components/widgets/PerformanceRadarChart';
 import PointsDistributionChart from '@/components/widgets/PointsDistributionChart';
+import RecentResults from '@/components/widgets/RecentResults';
+import LastGameCard from '@/components/widgets/LastGameCard';
 
-export default function Home() {
+import { auth0 } from '@/lib/auth0';
+import { redirect } from 'next/navigation';
+
+export default async function Home() {
+  const session = await auth0.getSession();
+  if (!session) redirect('/unauthenticated');
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -22,6 +30,8 @@ export default function Home() {
           <ShootingEfficiencyChart />
           <PerformanceRadarChart />
           <PointsDistributionChart />
+          <LastGameCard />
+          <RecentResults />
         </div>
       </div>
     </DashboardLayout>

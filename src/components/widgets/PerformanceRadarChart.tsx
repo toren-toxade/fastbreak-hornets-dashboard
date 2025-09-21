@@ -1,37 +1,38 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Legend } from 'recharts';
+import { useEffect, useState } from 'react';
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { PlayerStats } from '@/types/player';
 import { Activity } from 'lucide-react';
+import { usePlayers } from '@/lib/hooks/usePlayers';
+import { RADAR_MAX } from '@/lib/constants';
+import { fmt1 } from '@/lib/format';
 
 export default function PerformanceRadarChart() {
-  const [players, setPlayers] = useState<PlayerStats[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerStats | null>(null);
-  const [loading, setLoading] = useState(true);
 
+  const { players, isLoading, isUnauthorized } = usePlayers();
+
+  // Initialize selected player once we have data
   useEffect(() => {
-    async function fetchPlayers() {
-      try {
-        const response = await fetch('/api/players');
-        if (response.ok) {
-          const data = await response.json();
-          setPlayers(data.players);
-          if (data.players.length > 0) {
-            setSelectedPlayer(data.players[0]);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching players:', error);
-      } finally {
-        setLoading(false);
-      }
+    if (!selectedPlayer && players.length > 0) {
+      setSelectedPlayer(players[0]);
     }
+  }, [players, selectedPlayer]);
 
-    fetchPlayers();
-  }, []);
+  if (isUnauthorized) {
+    return (
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Activity className="text-purple-500" size={20} />
+          <h3 className="text-lg font-semibold text-gray-900">Performance Radar Chart</h3>
+        </div>
+        <p className="text-gray-600 text-sm">Please sign in to view this chart.</p>
+      </div>
+    );
+  }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center gap-2 mb-4">
@@ -60,35 +61,43 @@ export default function PerformanceRadarChart() {
     return Math.min(Math.round((value / max) * 100), 100);
   };
 
-  const radarData = [
+  type RadarDatum = { subject: string; value: number; raw: number; fullMark: number };
+
+  const radarData: RadarDatum[] = [
     {
       subject: 'Points',
-      value: normalizeValue(selectedPlayer.pointsPerGame, 30),
+      value: normalizeValue(selectedPlayer.pointsPerGame, RADAR_MAX.points),
+      raw: selectedPlayer.pointsPerGame,
       fullMark: 100,
     },
     {
       subject: 'Rebounds',
-      value: normalizeValue(selectedPlayer.rebounds, 15),
+      value: normalizeValue(selectedPlayer.rebounds, RADAR_MAX.rebounds),
+      raw: selectedPlayer.rebounds,
       fullMark: 100,
     },
     {
       subject: 'Assists',
-      value: normalizeValue(selectedPlayer.assists, 12),
+      value: normalizeValue(selectedPlayer.assists, RADAR_MAX.assists),
+      raw: selectedPlayer.assists,
       fullMark: 100,
     },
     {
       subject: 'FG%',
       value: Math.round(selectedPlayer.fieldGoalPercentage * 100),
+      raw: selectedPlayer.fieldGoalPercentage * 100,
       fullMark: 100,
     },
     {
       subject: 'Minutes',
-      value: normalizeValue(selectedPlayer.minutesPlayed, 40),
+      value: normalizeValue(selectedPlayer.minutesPlayed, RADAR_MAX.minutes),
+      raw: selectedPlayer.minutesPlayed,
       fullMark: 100,
     },
     {
       subject: 'Steals',
-      value: normalizeValue(selectedPlayer.steals, 3),
+      value: normalizeValue(selectedPlayer.steals, RADAR_MAX.steals),
+      raw: selectedPlayer.steals,
       fullMark: 100,
     },
   ];
@@ -118,7 +127,7 @@ export default function PerformanceRadarChart() {
         </select>
       </div>
 
-      <div className="h-64">
+      <div className="h-64" role="img" aria-label="Radar chart of player performance across points, rebounds, assists, field goal percentage, minutes, and steals">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={radarData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
             <PolarGrid stroke="#e5e7eb" />
@@ -131,6 +140,24 @@ export default function PerformanceRadarChart() {
               domain={[0, 100]} 
               tick={{ fontSize: 10, fill: '#9ca3af' }}
               tickFormatter={(value) => `${value}%`}
+            />
+            <Tooltip 
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const p = payload[0] as { payload: RadarDatum };
+                  const d = p.payload;
+                  const rawStr = d.subject === 'FG%'
+                    ? `${fmt1(d.raw)}%`
+                    : `${fmt1(d.raw)}`;
+                  return (
+                    <div className="bg-white p-2 border border-gray-200 rounded shadow-sm text-sm">
+                      <div className="font-medium text-gray-900">{d.subject}</div>
+                      <div className="text-gray-700">{rawStr}</div>
+                    </div>
+                  );
+                }
+                return null;
+              }}
             />
             <Radar
               name={`${selectedPlayer.player.first_name} ${selectedPlayer.player.last_name}`}

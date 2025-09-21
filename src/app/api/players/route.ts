@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { withApiAuthRequired } from '@auth0/nextjs-auth0';
 import { mockHornetsData } from '@/lib/mockData';
 import { DashboardData } from '@/types/player';
+import { requireSession } from '@/lib/auth-guard';
+import { getHornetsSeasonStats } from '@/lib/repo/players';
 
 // NBA API integration would go here
 // For now, we'll use mock data with the option to extend later
@@ -18,13 +19,20 @@ async function fetchHornetsData(): Promise<DashboardData> {
   };
 }
 
-export const GET = withApiAuthRequired(async function handler(req) {
+export const GET = async function handler() {
   try {
-    const data = await fetchHornetsData();
-    
+    const gate = await requireSession();
+    if (gate instanceof NextResponse) return gate;
+
+    // Try Supabase first, fallback to mock data if empty
+    let data: DashboardData = await getHornetsSeasonStats();
+    if (!data.players?.length) {
+      data = await fetchHornetsData();
+    }
+
     return NextResponse.json(data, {
       headers: {
-        'Cache-Control': 's-maxage=300, stale-while-revalidate=600', // Cache for 5 minutes
+        'Cache-Control': 's-maxage=300, stale-while-revalidate=600',
       },
     });
   } catch (error) {
@@ -34,4 +42,4 @@ export const GET = withApiAuthRequired(async function handler(req) {
       { status: 500 }
     );
   }
-});
+};

@@ -1,33 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { PlayerStats } from '@/types/player';
 import { Target } from 'lucide-react';
+import { usePlayers } from '@/lib/hooks/usePlayers';
 
 export default function ShootingEfficiencyChart() {
-  const [players, setPlayers] = useState<PlayerStats[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { players, isLoading, isUnauthorized } = usePlayers();
 
-  useEffect(() => {
-    async function fetchPlayers() {
-      try {
-        const response = await fetch('/api/players');
-        if (response.ok) {
-          const data = await response.json();
-          setPlayers(data.players);
-        }
-      } catch (error) {
-        console.error('Error fetching players:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
+  if (isUnauthorized) {
+    return (
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Target className="text-green-500" size={20} />
+          <h3 className="text-lg font-semibold text-gray-900">Shooting Efficiency</h3>
+        </div>
+        <p className="text-gray-600 text-sm">Please sign in to view this chart.</p>
+      </div>
+    );
+  }
 
-    fetchPlayers();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center gap-2 mb-4">
@@ -47,14 +39,16 @@ export default function ShootingEfficiencyChart() {
     position: player.player.position
   })).sort((a, b) => b['Field Goal %'] - a['Field Goal %']);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  type TooltipPayloadItem = { payload: (typeof chartData)[number]; color?: string; dataKey?: string; value?: number };
+  type TooltipProps = { active?: boolean; payload?: TooltipPayloadItem[]; label?: string };
+  const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-sm">
           <p className="font-medium text-gray-900">{label}</p>
           <p className="text-sm text-gray-600 mb-2">{data.position}</p>
-          {payload.map((entry: any, index: number) => (
+          {(payload ?? []).map((entry: TooltipPayloadItem, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.dataKey}: {entry.value}%
             </p>
@@ -72,7 +66,7 @@ export default function ShootingEfficiencyChart() {
         <h3 className="text-lg font-semibold text-gray-900">Shooting Efficiency</h3>
       </div>
       
-      <div className="h-64">
+      <div className="h-64" role="img" aria-label="Bar chart comparing field goal percentage and three-point percentage for each player">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />

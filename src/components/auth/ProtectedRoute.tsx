@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser } from '@auth0/nextjs-auth0/client';
+import { useUser } from '@auth0/nextjs-auth0';
 import { ReactNode } from 'react';
 import LoginButton from './LoginButton';
 import { Loader2 } from 'lucide-react';

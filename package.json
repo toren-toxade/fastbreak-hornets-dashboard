@@ -6,10 +6,13 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ingest": "dotenv -e .env.local -- node scripts/run-ingestion.mjs 2024",
+    "ingest:mini": "dotenv -e .env.local -- node scripts/run-ingestion.mjs 2024 mini"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.10.0",
+    "@supabase/supabase-js": "^2.57.4",
     "axios": "^1.12.2",
     "lucide-react": "^0.544.0",
     "next": "15.5.3",
@@ -23,9 +26,13 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^10.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20 <23"
   }
 }
