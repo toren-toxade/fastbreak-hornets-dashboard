@@ -3,7 +3,6 @@ import PlayerLeaderboard from '@/components/widgets/PlayerLeaderboard';
 import ShootingEfficiencyChart from '@/components/widgets/ShootingEfficiencyChart';
 import PerformanceRadarChart from '@/components/widgets/PerformanceRadarChart';
 import PointsDistributionChart from '@/components/widgets/PointsDistributionChart';
-import LastGameCard from '@/components/widgets/LastGameCard';
 
 import { auth0 } from '@/lib/auth0';
 import { redirect } from 'next/navigation';
@@ -30,7 +29,6 @@ export default async function Home() {
           <ShootingEfficiencyChart />
           <PerformanceRadarChart />
           <PointsDistributionChart />
-          <LastGameCard />
         </div>
       </div>
     </DashboardLayout>

@@ -167,12 +167,11 @@ className="w-full p-2.5 rounded-md border border-[var(--brand-300)] bg-[var(--br
               fillOpacity={0.3}
               strokeWidth={2}
             />
-            <Legend />
           </RadarChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-6 text-sm">
+      <div className="mt-10 text-sm border-t border-subtle pt-4">
         <p className="text-muted">Multi-dimensional performance analysis normalized to 100% scale</p>
       </div>
     </div>

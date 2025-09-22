@@ -40,22 +40,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --background: #ffffff;
-    --foreground: #0f172a; /* slate-900 */
-    --surface: #ffffff;     /* card surface */
-    --surface-2: #f8fafc;   /* slate-50 */
-    --surface-3: #f1f5f9;   /* slate-100 */
-
-    --border: #e5e7eb;     /* gray-200 */
-    --muted: #64748b;      /* slate-500 */
-
-    --grad-from: #eaf1ff;
-    --grad-via: #dbeafe;
-    --grad-to: #bfdbfe;
-  }
-}
 
 body {
   background: var(--background);
