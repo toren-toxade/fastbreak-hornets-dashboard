@@ -11,14 +11,14 @@ export default function LogoutButton() {
 
   return (
     <div className="flex items-center gap-4">
-      <div className="flex items-center gap-2 text-sm text-gray-700">
+<div className="flex items-center gap-2 text-sm text-muted">
         <User size={16} />
         <span className="font-medium">{user.name || user.email}</span>
       </div>
       <a
         href="/auth/logout"
         aria-label="Sign out of FastBreak"
-        className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 font-medium"
+className="btn btn-secondary"
       >
         <LogOut size={16} />
         Sign Out

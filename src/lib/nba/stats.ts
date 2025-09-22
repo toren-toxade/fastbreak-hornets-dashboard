@@ -23,15 +23,23 @@ function seasonParamFromYear(startYear: number): string {
 function buildHeaders(): Record<string, string> {
   // These headers are commonly sufficient for NBA Stats. You can override via env if needed.
   const UA = process.env.NBA_STATS_USER_AGENT ||
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36';
-  const REFERER = process.env.NBA_STATS_REFERER || 'https://www.nba.com/';
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36';
+  const REFERER = process.env.NBA_STATS_REFERER || 'https://www.nba.com/stats';
   const ORIGIN = process.env.NBA_STATS_ORIGIN || 'https://www.nba.com';
   return {
     'Accept': 'application/json, text/plain, */*',
     'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Connection': 'keep-alive',
     'Origin': ORIGIN,
     'Referer': REFERER,
     'User-Agent': UA,
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-origin',
+    'Sec-Fetch-Dest': 'empty',
+    'sec-ch-ua': '"Chromium";v="127", "Not A(Brand";v="24", "Google Chrome";v="127"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
     'x-nba-stats-origin': 'stats',
     'x-nba-stats-token': 'true',
   };
@@ -45,14 +53,32 @@ function qs(params: Record<string, string | number | undefined>) {
   return sp.toString();
 }
 
-async function statsFetch(endpoint: string, params: Record<string, string | number | undefined>) {
+async function statsFetch(
+  endpoint: string,
+  params: Record<string, string | number | undefined>,
+  opts: { attempts?: number; timeoutMs?: number } = {}
+) {
   const url = `${NBA_STATS_BASE}/${endpoint}?${qs(params)}`;
-  const res = await fetch(url, { headers: buildHeaders(), cache: 'no-store' });
-  if (!res.ok) {
-    const msg = `NBA Stats error ${res.status} for ${endpoint}`;
-    throw new Error(msg);
+  const attempts = Math.max(1, opts.attempts ?? 3);
+  const timeoutMs = Math.max(1000, opts.timeoutMs ?? 7000);
+
+  let lastErr: unknown = null;
+  for (let i = 0; i < attempts; i++) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, { headers: buildHeaders(), cache: 'no-store', signal: ctrl.signal });
+      if (!res.ok) throw new Error(`NBA Stats error ${res.status} for ${endpoint}`);
+      return await res.json();
+    } catch (e) {
+      lastErr = e;
+      // backoff 300ms, 600ms, 900ms ...
+      await new Promise((r) => setTimeout(r, 300 * (i + 1)));
+    } finally {
+      clearTimeout(t);
+    }
   }
-  return res.json();
+  throw (lastErr instanceof Error ? lastErr : new Error(String(lastErr || 'fetch failed')));
 }
 
 function resultSetToObjects(json: any, preferredName?: string): any[] {
@@ -83,11 +109,42 @@ export async function fetchTeamSeasonAverages(teamAbbr: string, seasonStartYear:
   const Season = seasonParamFromYear(seasonStartYear);
 
   const json = await statsFetch('leaguedashplayerstats', {
-    Season,
-    TeamID: teamId,
-    SeasonType: 'Regular Season',
+    College: '',
+    Conference: '',
+    Country: '',
+    DateFrom: '',
+    DateTo: '',
+    Division: '',
+    DraftPick: '',
+    DraftYear: '',
+    GameScope: '',
+    GameSegment: '',
+    Height: '',
+    LastNGames: 0,
+    LeagueID: '00',
+    Location: '',
     MeasureType: 'Base',
+    Month: 0,
+    OpponentTeamID: 0,
+    Outcome: '',
+    PaceAdjust: 'N',
     PerMode: 'PerGame',
+    Period: 0,
+    PlayerExperience: '',
+    PlayerPosition: '',
+    PlusMinus: 'N',
+    PORound: 0,
+    Rank: 'N',
+    Season,
+    SeasonSegment: '',
+    SeasonType: 'Regular Season',
+    ShotClockRange: '',
+    StarterBench: '',
+    TeamID: teamId,
+    TwoWay: 0,
+    VsConference: '',
+    VsDivision: '',
+    Weight: ''
   });
   const rows = resultSetToObjects(json, 'LeagueDashPlayerStats');
 
@@ -130,12 +187,42 @@ export async function fetchTeamLast10Averages(teamAbbr: string, seasonStartYear:
   const Season = seasonParamFromYear(seasonStartYear);
 
   const json = await statsFetch('leaguedashplayerstats', {
-    Season,
-    TeamID: teamId,
-    SeasonType: 'Regular Season',
-    MeasureType: 'Base',
-    PerMode: 'PerGame',
+    College: '',
+    Conference: '',
+    Country: '',
+    DateFrom: '',
+    DateTo: '',
+    Division: '',
+    DraftPick: '',
+    DraftYear: '',
+    GameScope: '',
+    GameSegment: '',
+    Height: '',
     LastNGames: 10,
+    LeagueID: '00',
+    Location: '',
+    MeasureType: 'Base',
+    Month: 0,
+    OpponentTeamID: 0,
+    Outcome: '',
+    PaceAdjust: 'N',
+    PerMode: 'PerGame',
+    Period: 0,
+    PlayerExperience: '',
+    PlayerPosition: '',
+    PlusMinus: 'N',
+    PORound: 0,
+    Rank: 'N',
+    Season,
+    SeasonSegment: '',
+    SeasonType: 'Regular Season',
+    ShotClockRange: '',
+    StarterBench: '',
+    TeamID: teamId,
+    TwoWay: 0,
+    VsConference: '',
+    VsDivision: '',
+    Weight: ''
   });
   const rows = resultSetToObjects(json, 'LeagueDashPlayerStats');
 

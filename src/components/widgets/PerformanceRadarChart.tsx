@@ -22,10 +22,10 @@ export default function PerformanceRadarChart() {
 
   if (isUnauthorized) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+<div className="card shadow-card">
         <div className="flex items-center gap-2 mb-4">
-          <Activity className="text-purple-500" size={20} />
-          <h3 className="text-lg font-semibold text-gray-900">Performance Radar Chart</h3>
+          <Activity className="text-[var(--primary)]" size={20} />
+<h3 className="text-lg font-semibold text-[var(--foreground)]">Performance Radar Chart</h3>
         </div>
         <p className="text-gray-600 text-sm">Please sign in to view this chart.</p>
       </div>
@@ -34,22 +34,22 @@ export default function PerformanceRadarChart() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <Activity className="text-purple-500" size={20} />
-          <h3 className="text-lg font-semibold text-gray-900">Performance Radar Chart</h3>
+          <Activity className="text-[var(--primary)]" size={20} />
+<h3 className="text-lg font-semibold text-[var(--foreground)]">Performance Radar Chart</h3>
         </div>
-        <div className="animate-pulse h-64 bg-gray-200 rounded"></div>
+<div className="animate-pulse h-64 bg-[var(--surface-2)] rounded"></div>
       </div>
     );
   }
 
   if (!selectedPlayer) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <Activity className="text-purple-500" size={20} />
-          <h3 className="text-lg font-semibold text-gray-900">Performance Radar Chart</h3>
+          <Activity className="text-[var(--primary)]" size={20} />
+<h3 className="text-lg font-semibold text-[var(--foreground)]">Performance Radar Chart</h3>
         </div>
         <p className="text-gray-500">No player data available</p>
       </div>
@@ -103,7 +103,7 @@ export default function PerformanceRadarChart() {
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
         <Activity className="text-purple-500" size={20} />
         <h3 className="text-lg font-semibold text-gray-900">Performance Radar Chart</h3>
@@ -117,11 +117,11 @@ export default function PerformanceRadarChart() {
             const player = players.find(p => p.playerId === playerId);
             if (player) setSelectedPlayer(player);
           }}
-          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+className="w-full p-2.5 rounded-md border border-[var(--brand-300)] bg-[var(--brand-50)] text-[var(--brand-800)] shadow-sm focus:ring-2 focus:ring-[var(--brand-600)] focus:border-[var(--brand-600)]"
         >
           {players.map((player) => (
             <option key={player.playerId} value={player.playerId}>
-              {player.player.first_name} {player.player.last_name} ({player.player.position})
+              {player.player.first_name} {player.player.last_name}
             </option>
           ))}
         </select>
@@ -162,8 +162,8 @@ export default function PerformanceRadarChart() {
             <Radar
               name={`${selectedPlayer.player.first_name} ${selectedPlayer.player.last_name}`}
               dataKey="value"
-              stroke="#8b5cf6"
-              fill="#8b5cf6"
+              stroke="var(--primary)"
+              fill="var(--primary)"
               fillOpacity={0.3}
               strokeWidth={2}
             />
@@ -172,11 +172,8 @@ export default function PerformanceRadarChart() {
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-4 text-sm text-gray-600 space-y-1">
-        <p className="font-medium">
-          {selectedPlayer.player.first_name} {selectedPlayer.player.last_name} - {selectedPlayer.player.position}
-        </p>
-        <p>Multi-dimensional performance analysis normalized to 100% scale</p>
+      <div className="mt-6 text-sm">
+        <p className="text-muted">Multi-dimensional performance analysis normalized to 100% scale</p>
       </div>
     </div>
   );

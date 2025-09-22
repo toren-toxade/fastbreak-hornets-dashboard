@@ -69,10 +69,10 @@ export default function PlayerLeaderboard() {
 
 if (anyUnauthorized) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+<div className="card shadow-card">
         <div className="flex items-center gap-2 mb-2">
           <Trophy className="text-yellow-500" size={20} />
-          <h3 className="text-lg font-semibold text-gray-900">Player Leaderboard</h3>
+<h3 className="text-lg font-semibold text-[var(--foreground)]">Player Leaderboard</h3>
         </div>
         <p className="text-gray-600 text-sm">Please sign in to view the leaderboard.</p>
       </div>
@@ -81,10 +81,10 @@ if (anyUnauthorized) {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
           <Trophy className="text-yellow-500" size={20} />
-          <h3 className="text-lg font-semibold text-gray-900">Player Leaderboard</h3>
+<h3 className="text-lg font-semibold text-[var(--foreground)]">Player Leaderboard</h3>
         </div>
         <div className="animate-pulse space-y-3">
           {[...Array(5)].map((_, i) => (
@@ -98,10 +98,10 @@ if (anyUnauthorized) {
   const topPlayers = getTopPlayers(selectedCategory);
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
         <Trophy className="text-yellow-500" size={20} />
-        <h3 className="text-lg font-semibold text-gray-900">Player Leaderboard</h3>
+<h3 className="text-lg font-semibold text-[var(--foreground)]">Player Leaderboard</h3>
       </div>
 
       {planNotice && (
@@ -117,7 +117,7 @@ if (anyUnauthorized) {
             setMode(m);
             if (m !== 'game') setSelectedGameId(undefined);
           }}
-          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full p-2.5 rounded-md border border-[var(--brand-300)] bg-[var(--brand-50)] text-[var(--brand-800)] shadow-sm focus:ring-2 focus:ring-[var(--brand-600)] focus:border-[var(--brand-600)]"
         >
           <option value="season">Season (current)</option>
           <option value="last10">Last 10 Games (avg)</option>
@@ -127,7 +127,7 @@ if (anyUnauthorized) {
         <select
           value={selectedCategory.key}
           onChange={(e) => setSelectedCategory(categories.find(c => c.key === e.target.value) || categories[0])}
-          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full p-2.5 rounded-md border border-[var(--brand-300)] bg-[var(--brand-50)] text-[var(--brand-800)] shadow-sm focus:ring-2 focus:ring-[var(--brand-600)] focus:border-[var(--brand-600)]"
         >
           {categories.map((category) => (
             <option key={category.key} value={category.key}>
@@ -140,7 +140,7 @@ if (anyUnauthorized) {
           <select
             value={selectedGameId ?? ''}
             onChange={(e) => setSelectedGameId(e.target.value ? Number(e.target.value) : undefined)}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full p-2.5 rounded-md border border-[var(--brand-300)] bg-[var(--brand-50)] text-[var(--brand-800)] shadow-sm focus:ring-2 focus:ring-[var(--brand-600)] focus:border-[var(--brand-600)]"
           >
             <option value="">Select a game</option>
             {(recent.data?.games ?? []).map((g) => (
@@ -156,7 +156,7 @@ if (anyUnauthorized) {
 
       <div className="space-y-3">
         {topPlayers.map((player, index) => (
-          <div key={player.playerId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div key={player.playerId} className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface-2)] border border-subtle">
             <div className="flex items-center gap-3">
               <div className={`
                 flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold
@@ -168,14 +168,14 @@ if (anyUnauthorized) {
                 {index + 1}
               </div>
               <div>
-                <p className="font-medium text-gray-900">
+                <p className="font-medium text-[var(--foreground)]">
                   {player.player.first_name} {player.player.last_name}
                 </p>
-                <p className="text-sm text-gray-500">{player.player.position}</p>
+                <p className="text-sm text-muted">{player.player.position}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-lg font-semibold text-gray-900">
+              <span className="text-lg font-semibold text-[var(--foreground)]">
                 {selectedCategory.formatter(player[selectedCategory.key] as number)}
               </span>
               {index === 0 && <TrendingUp size={16} className="text-green-500" />}

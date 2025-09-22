@@ -13,7 +13,7 @@ export default function LoginButton() {
     <a
       href="/auth/login"
       aria-label="Sign in to FastBreak"
-      className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium"
+className="btn btn-primary"
     >
       <LogIn size={20} />
       Sign In

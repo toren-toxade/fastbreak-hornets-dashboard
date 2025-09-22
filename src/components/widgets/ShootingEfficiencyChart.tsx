@@ -9,10 +9,10 @@ export default function ShootingEfficiencyChart() {
 
   if (isUnauthorized) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+<div className="card shadow-card">
         <div className="flex items-center gap-2 mb-4">
-          <Target className="text-green-500" size={20} />
-          <h3 className="text-lg font-semibold text-gray-900">Shooting Efficiency</h3>
+          <Target className="text-[var(--primary)]" size={20} />
+<h3 className="text-lg font-semibold text-[var(--foreground)]">Shooting Efficiency</h3>
         </div>
         <p className="text-gray-600 text-sm">Please sign in to view this chart.</p>
       </div>
@@ -21,23 +21,38 @@ export default function ShootingEfficiencyChart() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <Target className="text-green-500" size={20} />
-          <h3 className="text-lg font-semibold text-gray-900">Shooting Efficiency</h3>
+          <Target className="text-[var(--primary)]" size={20} />
+<h3 className="text-lg font-semibold text-[var(--foreground)]">Shooting Efficiency</h3>
         </div>
-        <div className="animate-pulse h-64 bg-gray-200 rounded"></div>
+<div className="animate-pulse h-64 bg-[var(--surface-2)] rounded"></div>
       </div>
     );
   }
 
-  const chartData = players.map(player => ({
-    name: `${player.player.first_name} ${player.player.last_name}`,
-    shortName: player.player.last_name,
-    'Field Goal %': Math.round(player.fieldGoalPercentage * 100),
-    'Three Point %': Math.round(player.threePointPercentage * 100),
-    position: player.player.position
-  })).sort((a, b) => b['Field Goal %'] - a['Field Goal %']);
+  // Build short names: use last name, or first initial + last name if duplicates
+  const lastCounts = players.reduce<Record<string, number>>((acc, p) => {
+    const ln = p.player.last_name || '';
+    acc[ln] = (acc[ln] || 0) + 1;
+    return acc;
+  }, {});
+
+  const chartData = players.map(player => {
+    const firstInitial = (player.player.first_name || '').slice(0, 1);
+    const last = player.player.last_name || '';
+    const shortName = (lastCounts[last] ?? 0) > 1 && firstInitial
+      ? `${firstInitial}. ${last}`
+      : last;
+
+    return {
+      name: `${player.player.first_name} ${player.player.last_name}`,
+      shortName,
+      'Field Goal %': Math.round(player.fieldGoalPercentage * 100),
+      'Three Point %': Math.round(player.threePointPercentage * 100),
+      position: player.player.position
+    };
+  }).sort((a, b) => b['Field Goal %'] - a['Field Goal %']);
 
   type TooltipPayloadItem = { payload: (typeof chartData)[number]; color?: string; dataKey?: string; value?: number };
   type TooltipProps = { active?: boolean; payload?: TooltipPayloadItem[]; label?: string };
@@ -60,10 +75,10 @@ export default function ShootingEfficiencyChart() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
         <Target className="text-green-500" size={20} />
-        <h3 className="text-lg font-semibold text-gray-900">Shooting Efficiency</h3>
+<h3 className="text-lg font-semibold text-[var(--foreground)]">Shooting Efficiency</h3>
       </div>
       
       <div className="h-64" role="img" aria-label="Bar chart comparing field goal percentage and three-point percentage for each player">
@@ -86,13 +101,13 @@ export default function ShootingEfficiencyChart() {
             <Legend />
             <Bar 
               dataKey="Field Goal %" 
-              fill="#3b82f6" 
+              fill="var(--primary)"
               name="Field Goal %"
               radius={[2, 2, 0, 0]}
             />
             <Bar 
               dataKey="Three Point %" 
-              fill="#10b981" 
+              fill="var(--accent)"
               name="Three Point %"
               radius={[2, 2, 0, 0]}
             />

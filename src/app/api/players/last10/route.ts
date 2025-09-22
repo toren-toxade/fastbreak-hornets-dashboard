@@ -1,24 +1,24 @@
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/auth-guard';
-import { fetchTeamLast10Averages } from '@/lib/nba/stats';
-
-const TEAM_ABBR = 'CHA';
-const DEFAULT_SEASON = 2024;
+import { getHornetsLast10Stats } from '@/lib/repo/players';
 
 export async function GET() {
   try {
     const gate = await requireSession();
     if (gate instanceof NextResponse) return gate;
 
-    const players = await fetchTeamLast10Averages(TEAM_ABBR, DEFAULT_SEASON);
+    const data = await getHornetsLast10Stats();
 
     return NextResponse.json(
-      { players, lastUpdated: new Date().toISOString() },
+      { players: data.players, lastUpdated: data.lastUpdated },
       { headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=600' } }
     );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error('[players last10] error', msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    console.warn('[players last10] supabase fallback error:', msg);
+    return NextResponse.json(
+      { players: [], lastUpdated: new Date().toISOString() },
+      { headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=60' } }
+    );
   }
 }

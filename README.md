@@ -81,13 +81,14 @@ Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
 
 ## 📊 Data Source
 
-Live data is fetched from the official NBA Stats endpoints (stats.nba.com) directly from server-side API routes. We set realistic request headers to comply with their expectations. Optionally, you can override these headers with environment variables if your environment requires it:
+Season averages, recent games (last 10), last-10 player stats, and per-game box scores are stored in Supabase via a scheduled ingestion job (GitHub Actions) that calls NBA Stats. The app reads from Supabase at runtime for fast and reliable responses.
 
-- NBA_STATS_USER_AGENT (optional)
-- NBA_STATS_REFERER (optional; defaults to https://www.nba.com/)
-- NBA_STATS_ORIGIN (optional; defaults to https://www.nba.com)
+- Season averages: player_season_stats
+- Recent games: team_recent_games
+- Last-10 player stats: player_last10_stats
+- Per-game player box scores: game_player_stats
 
-Mock data is still available and used as a fallback when Supabase has no season stats yet.
+Note: The app can optionally attempt live NBA Stats calls, but production relies on Supabase-backed data for stability.
 
 ## 🧾 Environment Template
 
@@ -113,13 +114,18 @@ Copy `.env.local.example` to `.env.local` and fill in values.
    - (optional) NBA_STATS_USER_AGENT, NBA_STATS_REFERER, NBA_STATS_ORIGIN
 4. Update Auth0 URLs with production domain
 
-Once deployed, you can run ingestion against your deployment:
+Once deployed, you can ingest data via CLI or GitHub Actions (recommended).
+
+CLI (local):
 
 ```bash
-TOKEN={{INGEST_TOKEN}}
-curl -sS -H "x-ingest-token: $TOKEN" -H "authorization: Bearer $TOKEN" \
-  -X POST 'https://YOUR-VERCEL-DOMAIN.vercel.app/api/admin/ingest-bdl?season=2024' | jq
+node scripts/ingest-nba-stats.mjs 2024 CHA
 ```
+
+GitHub Actions (nightly + manual):
+- Workflow: .github/workflows/ingest.yml
+- Required Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+- Optional: NBA_STATS_USER_AGENT, NBA_STATS_REFERER, NBA_STATS_ORIGIN
 
 ### Environment Variables for Production (.env or Vercel Dashboard)
 
@@ -179,8 +185,8 @@ npm run build
 # Start production build locally
 npm run start
 
-# Minimal ingestion (free-tier safe; single /players page)
-npm run ingest:mini
+# Ingest data into Supabase (season, recent games, last-10, per-game)
+node scripts/ingest-nba-stats.mjs 2024 CHA
 ```
 
 ## 📈 Performance

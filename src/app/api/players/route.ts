@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { DashboardData } from '@/types/player';
+import { NextRequest, NextResponse } from 'next/server';
+import { DashboardData, PlayerStats } from '@/types/player';
 import { requireSession } from '@/lib/auth-guard';
 import { getHornetsSeasonStats } from '@/lib/repo/players';
 import { fetchTeamSeasonAverages } from '@/lib/nba/stats';
@@ -12,10 +12,23 @@ async function fetchHornetsDataFromStats(): Promise<DashboardData> {
   return { players, lastUpdated: new Date().toISOString() };
 }
 
-export const GET = async function handler() {
+function topNPlayers(players: PlayerStats[], n: number, metric: keyof PlayerStats): PlayerStats[] {
+  return [...players]
+    .sort((a, b) => Number(b[metric] as number) - Number(a[metric] as number))
+    .slice(0, n);
+}
+
+export const GET = async function handler(req: NextRequest) {
   try {
     const gate = await requireSession();
     if (gate instanceof NextResponse) return gate;
+
+    // Parse optional query params: ?top=10&metric=minutesPlayed|pointsPerGame|gamesPlayed
+    const { searchParams } = new URL(req.url);
+    const top = Math.max(1, Math.min(50, Number(searchParams.get('top') || '10')));
+    const metricParam = (searchParams.get('metric') || 'minutesPlayed') as keyof PlayerStats;
+    const allowed: (keyof PlayerStats)[] = ['minutesPlayed', 'pointsPerGame', 'gamesPlayed'];
+    const metric = allowed.includes(metricParam) ? metricParam : 'minutesPlayed';
 
     // Try Supabase first, fallback to NBA Stats if empty
     let data: DashboardData = await getHornetsSeasonStats();
@@ -23,7 +36,9 @@ export const GET = async function handler() {
       data = await fetchHornetsDataFromStats();
     }
 
-    return NextResponse.json(data, {
+    const sliced = topNPlayers(data.players, top, metric);
+
+    return NextResponse.json({ players: sliced, lastUpdated: data.lastUpdated }, {
       headers: {
         'Cache-Control': 's-maxage=300, stale-while-revalidate=600',
       },

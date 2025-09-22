@@ -17,9 +17,9 @@ export default function RecentResults() {
   const unauthorized = Boolean((error as HttpError | undefined)?.status === 401);
   if (unauthorized) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+<div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-2">
-          <CalendarDays className="text-blue-500" size={20} />
+          <CalendarDays className="text-[var(--brand-600)]" size={20} />
           <h3 className="text-lg font-semibold text-gray-900">Last 10 Games</h3>
         </div>
         <p className="text-gray-600 text-sm">Please sign in to view recent games.</p>
@@ -29,9 +29,9 @@ export default function RecentResults() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="rounded-2xl border border-[var(--border)] bg-white p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <CalendarDays className="text-blue-500" size={20} />
+          <CalendarDays className="text-[var(--brand-600)]" size={20} />
           <h3 className="text-lg font-semibold text-gray-900">Last 10 Games</h3>
         </div>
         <div className="animate-pulse h-40 bg-gray-200 rounded mb-4"></div>
@@ -49,7 +49,7 @@ export default function RecentResults() {
   const sparkData = games.slice().reverse().map((g, idx) => ({ idx, diff: g.diff, label: fmtDate(g.date) }));
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <CalendarDays className="text-blue-500" size={20} />
@@ -74,7 +74,7 @@ export default function RecentResults() {
               const label = (p as { payload?: { label?: string } })?.payload?.label;
               return [v as number, label];
             }} />
-            <Line type="monotone" dataKey="diff" stroke="#3b82f6" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="diff" stroke="var(--brand-600)" strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

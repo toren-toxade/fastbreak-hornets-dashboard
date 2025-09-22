@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/auth-guard';
-import { fetchTeamRecentGames } from '@/lib/nba/stats';
+import { getTeamRecentGames } from '@/lib/repo/players';
 
 const TEAM_ABBR = 'CHA';
-const DEFAULT_SEASON = 2024;
 
 export async function GET() {
   try {
     const gate = await requireSession();
     if (gate instanceof NextResponse) return gate;
 
-    const games = await fetchTeamRecentGames(TEAM_ABBR, DEFAULT_SEASON);
+    const data = await getTeamRecentGames();
+    const games = data.games;
 
     const wins = games.filter((g) => g.result === 'W').length;
     const losses = games.length - wins;
@@ -28,13 +28,21 @@ export async function GET() {
           avgAgainst,
           avgDiff,
         },
-        lastUpdated: new Date().toISOString(),
+        lastUpdated: data.lastUpdated,
       },
       { headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=600' } }
     );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error('[recent-games] error', msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    console.warn('[recent-games] supabase fallback error:', msg);
+    return NextResponse.json(
+      {
+        team: TEAM_ABBR,
+        games: [],
+        summary: { record: '0-0', avgFor: 0, avgAgainst: 0, avgDiff: 0 },
+        lastUpdated: new Date().toISOString(),
+      },
+      { headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=60' } }
+    );
   }
 }

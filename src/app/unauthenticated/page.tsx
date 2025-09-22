@@ -1,19 +1,31 @@
+import MarketingNav from "@/components/marketing/MarketingNav";
+import Hero from "@/components/marketing/Hero";
+import Roles from "@/components/marketing/Roles";
+import Logos from "@/components/marketing/Logos";
+import Features from "@/components/marketing/Features";
+import Testimonial from "@/components/marketing/Testimonial";
+import Footer from "@/components/marketing/Footer";
+
 export default function UnauthenticatedPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <div className="text-center max-w-md">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">FastBreak</h1>
-        <p className="text-blue-600 font-medium mb-6">Charlotte Hornets Dashboard</p>
-        <p className="text-gray-600 mb-6">
-          Sign in to view player statistics, performance insights, and team analytics.
-        </p>
-        <a
-          href="/auth/login"
-          className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium"
-        >
-          Sign In
-        </a>
+    <main className="min-h-screen bg-white">
+      <MarketingNav />
+      <Hero />
+      <Roles />
+      <Logos />
+      <Features />
+      <Testimonial />
+      <div className="bg-white py-10">
+        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
+          <a
+            href="/auth/login"
+            className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+          >
+            Sign In to Continue
+          </a>
+        </div>
       </div>
+      <Footer />
     </main>
   );
 }
