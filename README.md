@@ -81,12 +81,13 @@ Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
 
 ## 📊 Data Source
 
-Currently uses mock data for Charlotte Hornets players. Live NBA data can be enabled via Ball Don't Lie API:
+Live data is fetched from the official NBA Stats endpoints (stats.nba.com) directly from server-side API routes. We set realistic request headers to comply with their expectations. Optionally, you can override these headers with environment variables if your environment requires it:
 
-- Free tier: access to `/players` and `/games` endpoints (no `/stats`).
-- Features using `/stats` (e.g., 10-game aggregates, per-game box scores) will return 401 on free tier.
-- The UI automatically falls back to Season mode when live stats are unavailable.
-- Mock data ensures widgets remain functional during development.
+- NBA_STATS_USER_AGENT (optional)
+- NBA_STATS_REFERER (optional; defaults to https://www.nba.com/)
+- NBA_STATS_ORIGIN (optional; defaults to https://www.nba.com)
+
+Mock data is still available and used as a fallback when Supabase has no season stats yet.
 
 ## 🧾 Environment Template
 
@@ -108,18 +109,16 @@ Copy `.env.local.example` to `.env.local` and fill in values.
 3. Set environment variables in Vercel dashboard (Production):
    - AUTH0_SECRET, AUTH0_BASE_URL, AUTH0_ISSUER_BASE_URL, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET
    - APP_BASE_URL = https://YOUR-VERCEL-DOMAIN.vercel.app
-   - NBA_API_BASE_URL = https://api.balldontlie.io/v1
-   - NBA_API_KEY = your BDL key
-   - NBA_API_TIER = free
    - INGEST_TOKEN = your shared secret
+   - (optional) NBA_STATS_USER_AGENT, NBA_STATS_REFERER, NBA_STATS_ORIGIN
 4. Update Auth0 URLs with production domain
 
-Once deployed, you can run the minimal ingestion against your deployment:
+Once deployed, you can run ingestion against your deployment:
 
 ```bash
 TOKEN={{INGEST_TOKEN}}
 curl -sS -H "x-ingest-token: $TOKEN" -H "authorization: Bearer $TOKEN" \
-  -X POST 'https://YOUR-VERCEL-DOMAIN.vercel.app/api/admin/ingest-bdl?season=2024&mode=mini' | jq
+  -X POST 'https://YOUR-VERCEL-DOMAIN.vercel.app/api/admin/ingest-bdl?season=2024' | jq
 ```
 
 ### Environment Variables for Production (.env or Vercel Dashboard)

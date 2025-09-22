@@ -1,22 +1,15 @@
 import { NextResponse } from 'next/server';
-import { mockHornetsData } from '@/lib/mockData';
 import { DashboardData } from '@/types/player';
 import { requireSession } from '@/lib/auth-guard';
 import { getHornetsSeasonStats } from '@/lib/repo/players';
+import { fetchTeamSeasonAverages } from '@/lib/nba/stats';
 
-// NBA API integration would go here
-// For now, we'll use mock data with the option to extend later
-async function fetchHornetsData(): Promise<DashboardData> {
-  // In a real implementation, you would:
-  // 1. Fetch Charlotte Hornets roster from NBA API
-  // 2. Get season averages for each player
-  // 3. Transform the data to match our interface
-  
-  // For now, return mock data
-  return {
-    players: mockHornetsData,
-    lastUpdated: new Date().toISOString()
-  };
+const TEAM_ABBR = 'CHA';
+const DEFAULT_SEASON = 2024;
+
+async function fetchHornetsDataFromStats(): Promise<DashboardData> {
+  const players = await fetchTeamSeasonAverages(TEAM_ABBR, DEFAULT_SEASON);
+  return { players, lastUpdated: new Date().toISOString() };
 }
 
 export const GET = async function handler() {
@@ -24,10 +17,10 @@ export const GET = async function handler() {
     const gate = await requireSession();
     if (gate instanceof NextResponse) return gate;
 
-    // Try Supabase first, fallback to mock data if empty
+    // Try Supabase first, fallback to NBA Stats if empty
     let data: DashboardData = await getHornetsSeasonStats();
     if (!data.players?.length) {
-      data = await fetchHornetsData();
+      data = await fetchHornetsDataFromStats();
     }
 
     return NextResponse.json(data, {

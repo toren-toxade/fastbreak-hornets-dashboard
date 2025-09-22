@@ -31,8 +31,6 @@ const mode = process.argv[3] || '';
 const token = (process.env.INGEST_TOKEN || '').trim();
 const base = process.env.APP_BASE_URL || 'http://localhost:3000';
 
-// Default to free tier unless overridden
-if (!process.env.NBA_API_TIER) process.env.NBA_API_TIER = 'free';
 
 if (!token) {
   console.error('Missing INGEST_TOKEN (set it in .env.local or export it in your shell)');

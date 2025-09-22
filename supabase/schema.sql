@@ -6,7 +6,7 @@ create extension if not exists "pgcrypto";
 
 -- 2) Tables
 create table if not exists players (
-  id bigint primary key,                -- balldontlie player id
+id bigint primary key,                -- provider player id (NBA Stats)
   first_name text not null,
   last_name text not null,
   position text,
@@ -36,7 +36,7 @@ create table if not exists player_season_stats (
 
 create table if not exists ingestion_runs (
   id uuid primary key default gen_random_uuid(),
-  source text not null,     -- 'balldontlie'
+source text not null,     -- e.g., 'nba-stats'
   season int not null,
   started_at timestamptz not null default now(),
   finished_at timestamptz,
