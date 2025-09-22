@@ -3,6 +3,7 @@
   - Uses headers that stats.nba.com expects
   - Provides convenience functions to fetch team player stats and recent games
 */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type { PlayerStats } from '@/types/player';
 import type { RecentGame } from '@/types/game';
